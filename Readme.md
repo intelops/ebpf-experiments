@@ -31,4 +31,4 @@ All eBPF programs in this repository are licensed under the MIT license. See the
 
 
 ## Acknowledgments
-We would like to thank the eBPF community for their contributions and support in developing these programs.
+We would like to thank the eBPF community for their contributions and support.
