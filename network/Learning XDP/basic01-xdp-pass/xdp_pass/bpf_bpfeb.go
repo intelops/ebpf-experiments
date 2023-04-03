@@ -54,7 +54,7 @@ type bpfSpecs struct {
 //
 // It can be passed ebpf.CollectionSpec.Assign.
 type bpfProgramSpecs struct {
-	XdpProgSimple *ebpf.ProgramSpec `ebpf:"xdp_prog_simple"`
+	XdpProgFunc *ebpf.ProgramSpec `ebpf:"xdp_prog_func"`
 }
 
 // bpfMapSpecs contains maps before they are loaded into the kernel.
@@ -92,12 +92,12 @@ func (m *bpfMaps) Close() error {
 //
 // It can be passed to loadBpfObjects or ebpf.CollectionSpec.LoadAndAssign.
 type bpfPrograms struct {
-	XdpProgSimple *ebpf.Program `ebpf:"xdp_prog_simple"`
+	XdpProgFunc *ebpf.Program `ebpf:"xdp_prog_func"`
 }
 
 func (p *bpfPrograms) Close() error {
 	return _BpfClose(
-		p.XdpProgSimple,
+		p.XdpProgFunc,
 	)
 }
 

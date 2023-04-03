@@ -12,6 +12,7 @@ import (
 	//"github.com/cilium/ebpf"
 	"github.com/cilium/ebpf/link"
 )
+
 //The ebpf package provides access to eBPF functionality, and the link package provides access to network interface management functionality.
 // $BPF_CLANG and $BPF_CFLAGS are set by the Makefile.
 
@@ -21,7 +22,9 @@ func main() {
 	if len(os.Args) < 2 {
 		log.Fatalf("Please specify a network interface")
 	}
-
+	//Removes memory lock limit of the ebpf program
+	err := rlimit.RemoveMemlock()
+	must("Error while removing the memlock", err)
 	//Look up the network interface by name.
 	//function starts by checking that a network interface name was specified as a command-line argument. 
 	//It then looks up the interface by name using the net.InterfaceByName function.

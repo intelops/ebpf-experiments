@@ -7,7 +7,7 @@ char __license[] SEC("license") = "Dual MIT/GPL";
 
 
 SEC("xdp")
-int  xdp_prog_simple(struct xdp_md *ctx)
+int  xdp_prog_func(struct xdp_md *ctx)
 {
 	return XDP_PASS;
 }
