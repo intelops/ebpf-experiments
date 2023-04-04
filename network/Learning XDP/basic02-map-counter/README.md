@@ -130,6 +130,19 @@ enum xdp_action {
 ___
 ___
 
+```C
+#ifndef lock_xadd
+#define lock_xadd(ptr, val)	((void) __sync_fetch_and_add(ptr, val))
+#endif
+```
+
+We define a macro `lock_xadd` that wraps the `__sync_fetch_and_add` function using the GCC built-in function `__sync_fetch_and_add` for performing an atomic fetch-and-add operation on a given memory location.
+* The macro takes two arguments: a pointer ptr to the target memory location, and a value val to be added to the current value of the memory location.
+* `__sync_fetch_and_add` is a **built-in** GCC (GNU Compiler Collection) function that provides an atomic operation for fetching the current value of a memory location, adding a value to it, and storing the result back into the same memory location in a single, uninterruptible step. 
+* This function is typically used in multi-threaded or concurrent programming to safely update shared variables without race conditions or other synchronization issues
+* The macro definition simply wraps the `__sync_fetch_and_add` function call with an additional `(void)` cast to suppress any potential warnings about unused results, as the function returns the previous value of the memory location before the addition, which might not be used in some cases.
+___
+___
 
 
 ### xdp_stats1_func
