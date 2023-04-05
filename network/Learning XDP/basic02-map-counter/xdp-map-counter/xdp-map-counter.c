@@ -26,7 +26,7 @@ int xdp_stats1_func(struct xdp_md *ctx)
     struct datarec *rec; 
     ___u32 key = XDP_PASS;
     rec = bpf_map_lookup_elem(&xdp_stats_map , &key);
+        if(!rec) // null pointer check 
+            return XDP_ABORTED;
     
-
-
 }

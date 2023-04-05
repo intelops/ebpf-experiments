@@ -220,6 +220,7 @@ enum xdp_action {
 
 ___
 ___
+### __sync_fetch_and_add
 
 ```C
 #ifndef lock_xadd
@@ -232,6 +233,17 @@ We define a macro `lock_xadd` that wraps the `__sync_fetch_and_add` function usi
 * `__sync_fetch_and_add` is a **built-in** GCC (GNU Compiler Collection) function that provides an atomic operation for fetching the current value of a memory location, adding a value to it, and storing the result back into the same memory location in a single, uninterruptible step. 
 * This function is typically used in multi-threaded or concurrent programming to safely update shared variables without race conditions or other synchronization issues
 * The macro definition simply wraps the `__sync_fetch_and_add` function call with an additional `(void)` cast to suppress any potential warnings about unused results, as the function returns the previous value of the memory location before the addition, which might not be used in some cases.
+
+### lock_xadd
+
+```C
+	lock_xadd(&rec->rx_packets, 1);
+```
+The `lock_xadd()` function is used to **atomically increment** the value of `rec->rx_packets` by `1`.
+* This operation ensures that the **increment** is performed **atomically**, meaning that it is thread-safe and can be safely used in a multi-CPU environment where multiple threads may be accessing the same memory location simultaneously. 
+* The purpose of this operation is to **increment** the packet count in the `rx_packets` field of the `struct datarec` data record, which is stored in the `xdp_stats_map` BPF map.
+* This allows the eBPF program to keep **track of the number of packets** that pass through the **XDP hook**
+
 ___
 ___
 
