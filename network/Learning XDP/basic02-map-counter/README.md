@@ -243,7 +243,7 @@ The `lock_xadd()` function is used to **atomically increment** the value of `rec
 * This operation ensures that the **increment** is performed **atomically**, meaning that it is thread-safe and can be safely used in a multi-CPU environment where multiple threads may be accessing the same memory location simultaneously. 
 * The purpose of this operation is to **increment** the packet count in the `rx_packets` field of the `struct datarec` data record, which is stored in the `xdp_stats_map` BPF map.
 * This allows the eBPF program to keep **track of the number of packets** that pass through the **XDP hook**
-
+* Once the packet count is updated, the eBPF program may return `XDP_PASS` to indicate that the packet should be allowed to continue processing by the kernel networking stack. 
 ___
 ___
 

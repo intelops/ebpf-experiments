@@ -28,5 +28,9 @@ int xdp_stats1_func(struct xdp_md *ctx)
     rec = bpf_map_lookup_elem(&xdp_stats_map , &key);
         if(!rec) // null pointer check 
             return XDP_ABORTED;
-    
+
+lock_xadd(&rec->rx_packets,1);
+
+return XDP_PASS; 
+
 }
