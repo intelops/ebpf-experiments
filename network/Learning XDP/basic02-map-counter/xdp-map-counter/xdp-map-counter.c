@@ -31,6 +31,6 @@ int xdp_stats1_func(struct xdp_md *ctx)
 
 lock_xadd(&rec->rx_packets,1);
 
-return XDP_PASS; 
+return XDP_PASS;
 
 }
