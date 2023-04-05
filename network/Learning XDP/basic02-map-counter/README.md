@@ -145,6 +145,9 @@ int bpf_map_delete_elem(void *map, void *key);
 * This allows eBPF programs to perform **atomic** operations, such as incrementing or decrementing the value "in-place", using appropriate compiler primitives like `__sync_fetch_and_add()`, which are understood by LLVM (Low-Level Virtual Machine) when generating eBPF instructions. 
 * This direct access to the value memory element in the kernel provides more efficient and optimized access to map data structures for eBPF programs running in the kernel. So, the `bpf_map_lookup_elem()` function in the kernel-side eBPF API enables efficient and direct access to map values from eBPF programs running in the kernel.
 
+## bpf_map_lookup_elem
+
+[bpf_map_lookup_elem](https://elixir.bootlin.com/linux/latest/source/tools/lib/bpf/bpf.c#L398) is a function in the Linux kernel's BPF (Berkeley Packet Filter) subsystem that is used to look up an element in a BPF map. BPF maps are key-value data structures that can be used by BPF programs running in the Linux kernel to store and retrieve data.
 ___
 ___
 
@@ -186,14 +189,6 @@ We define a macro `lock_xadd` that wraps the `__sync_fetch_and_add` function usi
 * The macro definition simply wraps the `__sync_fetch_and_add` function call with an additional `(void)` cast to suppress any potential warnings about unused results, as the function returns the previous value of the memory location before the addition, which might not be used in some cases.
 ___
 ___
-
-### bpf_map_lookup_elem
-
-[bpf_map_lookup_elem](https://elixir.bootlin.com/linux/latest/source/tools/lib/bpf/bpf.c#L398) is a function in the Linux kernel's BPF (Berkeley Packet Filter) subsystem that is used to look up an element in a BPF map. BPF maps are key-value data structures that can be used by BPF programs running in the Linux kernel to store and retrieve data.
-
-___
-___
-
 
 ### xdp_stats1_func
 
