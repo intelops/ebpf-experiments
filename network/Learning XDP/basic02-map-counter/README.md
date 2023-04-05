@@ -147,7 +147,21 @@ int bpf_map_delete_elem(void *map, void *key);
 
 ## bpf_map_lookup_elem
 
-[bpf_map_lookup_elem](https://elixir.bootlin.com/linux/latest/source/tools/lib/bpf/bpf.c#L398) is a function in the Linux kernel's BPF (Berkeley Packet Filter) subsystem that is used to look up an element in a BPF map. BPF maps are key-value data structures that can be used by BPF programs running in the Linux kernel to store and retrieve data.
+[bpf_map_lookup_elem](https://elixir.bootlin.com/linux/latest/source/tools/lib/bpf/bpf.c#L398) is a function in the Linux kernel's BPF subsystem that is used to look up an element in a BPF map. 
+* BPF maps are key-value data structures that can be used by BPF programs running in the Linux kernel to store and retrieve data.
+
+The `bpf_map_lookup_elem` function takes two arguments:
+
+1. `map`: A pointer to the BPF map to perform the lookup on.
+1. `key`: A pointer to the key used to look up the element in the map.
+
+The function **returns a pointer** to the value associated with the given key in the BPF map if the key is found, or `NULL` if the key is not found.
+
+The function signature for `bpf_map_lookup_elem`:
+
+```C
+void *bpf_map_lookup_elem(void *map, const void *key);
+```
 ___
 ___
 
