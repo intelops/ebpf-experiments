@@ -33,7 +33,8 @@ struct bpf_map_def {
 ```
 ## Map type 
 Currently, the following values are supported for `type` defined at `/usr/include/linux/bpf.h`
-```
+
+```C
 enum bpf_map_type {
 	BPF_MAP_TYPE_UNSPEC,
 	BPF_MAP_TYPE_HASH,
