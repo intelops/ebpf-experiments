@@ -152,6 +152,8 @@ int bpf_map_delete_elem(void *map, void *key);
 * Unlike the userspace API, which provides a copy of the value, the kernel-side API provides a **direct pointer** to the memory element inside the kernel where the value is stored.
 * This allows eBPF programs to perform **atomic** operations, such as incrementing or decrementing the value "in-place", using appropriate compiler primitives like `__sync_fetch_and_add()`, which are understood by LLVM (Low-Level Virtual Machine) when generating eBPF instructions. 
 * This direct access to the value memory element in the kernel provides more efficient and optimized access to map data structures for eBPF programs running in the kernel. So, the `bpf_map_lookup_elem()` function in the kernel-side eBPF API enables efficient and direct access to map values from eBPF programs running in the kernel.
+_____
+_____
 
 ## bpf_map_lookup_elem
 
@@ -170,6 +172,27 @@ The function signature for `bpf_map_lookup_elem`:
 ```C
 void *bpf_map_lookup_elem(void *map, const void *key);
 ```
+In our program, `bpf_map_lookup_elem()` the helper function provided by the eBPF API that is used to look up an element in the BPF map. It takes two arguments:
+
+```C
+rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
+```
+1.  `&xdp_stats_map`: A **pointer** to the BPF map (struct bpf_map_def) that we want to perform the lookup on. In this case, it refers to the `xdp_stats_map` BPF map that was defined earlier in the code.
+1.  `&key`: A **pointer** to the `key` that you want to look up in the map. The key is of `type __u32` and its value is determined by the variable key in the code, which is set to `XDP_PASS`.
+
+The `bpf_map_lookup_elem()` function **returns a pointer** to the value associated with the given key in the BPF map `(&xdp_stats_map)`. 
+* In other words, it allows you to retrieve the value stored in the BPF map corresponding to the key `XDP_PASS` and store it in the `rec` variable, which is of `type struct datarec` and represents the data record stored in the map.
+* Note that if the lookup fails (i.e., the key does not exist in the map), the function may return `NULL`, and it's important to perform a **null pointer** check, as shown in the code, to ensure the safety and correctness of the eBPF program.
+
+```C
+	if (!rec)
+		return XDP_ABORTED;
+```
+
+* Code  `if (!rec)` is checking if the value of the pointer `rec` is `NULL` or not. 
+* If `rec` is `NULL`, it means that the lookup operation using `bpf_map_lookup_elem()` function failed, and the corresponding entry for the given `key` was not found in the BPF map `xdp_stats_map`.
+* The function returns `XDP_ABORTED` as the return value.
+
 ___
 ___
 

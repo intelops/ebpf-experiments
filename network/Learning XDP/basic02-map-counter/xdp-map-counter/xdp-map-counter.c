@@ -2,6 +2,7 @@
 
 #include "bpf_endian.h"
 #include "common.h"
+#include "common_kern_user.h" // definiton of datarec and XDP action
 
 char __license[] SEC("license") = "Dual MIT/GPL";
 
@@ -22,9 +23,10 @@ struct bpf_map_def SEC("maps") xdp_stats_map =
 SEC("xdp_stats1")
 int xdp_stats1_func(struct xdp_md *ctx)
 {
-    struct datarec *rec;
+    struct datarec *rec; 
     ___u32 key = XDP_PASS;
-    rec = bpf_map_lookup_elem()
+    rec = bpf_map_lookup_elem(&xdp_stats_map , &key);
+    
 
 
 }
