@@ -1,0 +1,43 @@
+{
+ 	"ShowProgress": {
+ 		"Value": null,
+ 		"Enabled": true,
+ 		"Description": "Prints progress of application to standard output."
+ 	},
+ 	"PrintToScreen": {
+ 		"Value": null,
+ 		"Enabled": false,
+ 		"Description": "Captured information will be printed to the standard console."
+ 	},
+ 	"ExportAs": [
+ 		{
+ 			"Format": {
+ 				"Value": "JSON",
+ 				"Enabled": false,
+ 				"Description": "Captured information will be exported in the specified 'Format'."
+ 			},
+ 			"Directory": {
+ 				"Value": "/home/cravela/Projects/ebpf-execve-tarian/output",
+ 				"Enabled": false,
+ 				"Description": "This is going to be the output path of exported files"
+ 			},
+ 			"ExportTrigger": {
+ 				"Time": {
+ 					"Value": 5,
+ 					"Enabled": false,
+ 					"Description": "Data will be exported once for every 'Value' mili seconds."
+ 				},
+ 				"Count": {
+ 					"Value": 100,
+ 					"Enabled": false,
+ 					"Description": "Data will be exported for every 'Value' records captured."
+ 				},
+ 				"Size": {
+ 					"Value": 1024,
+ 					"Enabled": false,
+ 					"Description": "Data will be exported for every 'Value' Bytes of information captured."
+ 				}
+ 			}
+ 		}
+ 	]
+ }
