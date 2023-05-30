@@ -127,5 +127,6 @@ func _EntryClose(closers ...io.Closer) error {
 }
 
 // Do not access this directly.
+//
 //go:embed entry_bpfeb.o
 var _EntryBytes []byte

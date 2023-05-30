@@ -127,5 +127,6 @@ func _ExitClose(closers ...io.Closer) error {
 }
 
 // Do not access this directly.
+//
 //go:embed exit_bpfel.o
 var _ExitBytes []byte

@@ -46,6 +46,8 @@ func (ep *EbpfProgram) attachHook() (link.Link, error) {
 		hook, err = link.Tracepoint(ep.BpfHook.Group, ep.BpfHook.Name, ep.BpfProgram, nil)
 	case "xdp":
 		hook, err = link.AttachXDP(ep.BpfHook.XdpOpts)
+	case "kprobe":
+		hook, err = link.Kprobe(ep.BpfHook.Name,ep.BpfProgram,nil)
 	}
 
 	if err != nil {
