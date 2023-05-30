@@ -15,6 +15,7 @@ package modules
 
 import (
 	"tarian/pkg/ebpf"
+
 	"tarian/pkg/ebpf/c/network"
 	entry "tarian/pkg/ebpf/c/process_entry"
 	exit "tarian/pkg/ebpf/c/process_exit"

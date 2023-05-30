@@ -6,7 +6,7 @@
  	},
  	"PrintToScreen": {
  		"Value": null,
- 		"Enabled": false,
+ 		"Enabled": true,
  		"Description": "Captured information will be printed to the standard console."
  	},
  	"ExportAs": [

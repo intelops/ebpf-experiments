@@ -185,3 +185,7 @@ func StructToMap(data interface{}) map[string]interface{} {
 func SpreadMap(src map[string]interface{}, dest map[string]interface{}) {
 	spreadMap(src, dest)
 }
+
+func AnyToMap(data interface{}) map[string]interface{} {
+	return structToMap(data, false)
+}
