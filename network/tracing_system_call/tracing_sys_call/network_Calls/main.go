@@ -198,15 +198,17 @@ func formatmap_accept(m *ebpf.Map) (error) {
 			fmt.Println("Error:", err)
 		}
 		fmt.Printf("\t Thread Id (accept)%d => Accept soackaddr %s\n",eventid,readUint32IP(sockaddr))
-
+/** have to work on accept system call's third argument addrlen (pointer to a structure)
 		addrlen, err := getIntegerValue(buffer[16:24])
 		if err != nil {
 			fmt.Println("Error:", err)
 		}
 		fmt.Printf("\t Thread Id (accept) %d => Accept sockaddr addrlen: %d\n",eventid,addrlen)
 		fmt.Println("-----------------------------------------")
-	}
 	
+**/
+	
+	}	
 	return iter.Err()
 
 }
