@@ -122,6 +122,8 @@ Thread Id(socket) 3517 => Socket domain: AF_INET6
 
 # To - Do 
 
-[] Use one event structure 
-[] USe one map to submit the events
+* add one event for all the system call
+* add one map for all the system call
+* for accept system call decipher the third argument (addrlen)
+
 

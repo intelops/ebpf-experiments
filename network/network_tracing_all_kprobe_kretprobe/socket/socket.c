@@ -3,111 +3,6 @@
 #include <bpf/bpf_core_read.h>
 #include <asm/ptrace.h>
 
-#define PT_REGS_PARM1(x) ((x)->rdi)
-#define PT_REGS_PARM2(x) ((x)->rsi)
-#define PT_REGS_PARM3(x) ((x)->rdx)
-#define PT_REGS_PARM4(x) ((x)->rcx)
-#define PT_REGS_PARM5(x) ((x)->r8)
-#define PT_REGS_RET(x) ((x)->rsp)
-#define PT_REGS_FP(x) ((x)->rbp)
-#define PT_REGS_RC(x) ((x)->rax)
-#define PT_REGS_SP(x) ((x)->rsp)
-#define PT_REGS_IP(x) ((x)->rip)
-
-#define NONE_T 0UL
-#define INT_T 1UL
-#define STR_T 10UL
-#define STR_ARR_T 11UL
-#define SOCKADDR_T 12UL
-#define OPEN_FLAGS_T 13UL
-#define EXEC_FLAGS_T 14UL
-#define SOCK_DOM_T 15UL
-#define SOCK_TYPE_T 16UL
-#define FILE_TYPE_T 17UL
-#define UNLINKAT_FLAG_T 19UL
-#define PTRACE_REQ_T 23UL
-#define MOUNT_FLAG_T 24UL
-#define UMOUNT_FLAG_T 25UL
-
-
-
-#define TASK_COMM_LEN 16
-#define MAX_BUFFER_SIZE 32768
-#define DATA_BUF_TYPE 0
-#define _NETWORK_PROBE 2
-#define _SYS_SOCKET 41
-#define _SYS_CONNECT 42
-#define _SYS_ACCEPT 43
-#define _SYS_BIND 49
-#define _SYS_LISTEN 50
-#define _TCP_CONNECT 400
-#define _TCP_ACCEPT = 401
-#define _TCP_CONNECT_v6 = 402
-#define _TCP_ACCEPT_v6 = 403
-
-
-
-#define MAX_ARGS 6
-#define ENC_ARG_TYPE(n, type) type << (8 * n)
-#define ARG_TYPE0(type) ENC_ARG_TYPE(0, type)
-#define ARG_TYPE1(type) ENC_ARG_TYPE(1, type)
-#define ARG_TYPE2(type) ENC_ARG_TYPE(2, type)
-#define ARG_TYPE3(type) ENC_ARG_TYPE(3, type)
-#define ARG_TYPE4(type) ENC_ARG_TYPE(4, type)
-#define ARG_TYPE5(type) ENC_ARG_TYPE(5, type)
-#define DEC_ARG_TYPE(n, type) ((type >> (8 * n)) & 0xFF)
-
-#define AF_UNIX 1
-#define AF_INET 2
-#define AF_INET6 10
-
-#define GET_FIELD_ADDR(field) &field
-
-/**
-#define READ_KERN(ptr)                                     \
-    ({                                                     \
-        typeof(ptr) _val;                                  \
-        __builtin_memset((void *)&_val, 0, sizeof(_val));  \
-        bpf_probe_read((void *)&_val, sizeof(_val), &ptr); \
-        _val;                                              \
-    })
-*/
-
-//struct socket definition
-typedef short unsigned int __kernel_sa_family_t;
-typedef __kernel_sa_family_t sa_family_t;
-
-struct sockaddr_un {
-	__kernel_sa_family_t sun_family;
-	char sun_path[108];
-};
-
-struct in_addr {
-	__be32 s_addr;
-};
-
-struct in6_addr {
-	union {
-		__u8 u6_addr8[16];
-		__be16 u6_addr16[8];
-		__be32 u6_addr32[4];
-	} in6_u;
-};
-
-struct sockaddr_in6 {
-	short unsigned int sin6_family;
-	__be16 sin6_port;
-	__be32 sin6_flowinfo;
-	struct in6_addr sin6_addr;
-	__u32 sin6_scope_id;
-};
-
-struct sockaddr_in {
-	__kernel_sa_family_t sin_family;
-	__be16 sin_port;
-	struct in_addr sin_addr;
-	unsigned char __pad[8];
-};
 
 char __license[] SEC("license") = "Dual MIT/GPL";
 //create a structure to store event metadata
@@ -428,8 +323,6 @@ static __always_inline int trace_ret_generic(u32 id, struct pt_regs *ctx, u64 ty
     //if (skip_syscall())
       //  return 0;
 
-        bpf_printk("enter\n");
-
 
     sys_context_t context = {};
     struct event args = {};
@@ -458,9 +351,9 @@ static __always_inline int trace_ret_generic(u32 id, struct pt_regs *ctx, u64 ty
     }
 
     //if (context.retval >= 0 && drop_syscall(scope))
-   // {
-     //   return 0;
-   // }
+   //{
+   //   return 0;
+  // }
 
     set_buffer_offset(DATA_BUF_TYPE, sizeof(sys_context_t));
 
@@ -557,4 +450,146 @@ int sys_listen(struct pt_regs *ctx)
        bpf_printk("=====================Exit : %s=======================",__func__);
 }
 
+static __always_inline int get_connection_info(struct sock_common *conn, struct sockaddr_in *sockv4, struct sockaddr_in6 *sockv6, sys_context_t *context, struct event *args, u32 event)
+{
+    switch (conn->skc_family)
+    {
+    case AF_INET:
+        sockv4->sin_family = conn->skc_family;//Sets the address family 
+        sockv4->sin_addr.s_addr = conn->skc_daddr;//Copies the destination IP address
+        sockv4->sin_port = (event == _TCP_CONNECT) ? conn->skc_dport : (conn->skc_num >> 8) | (conn->skc_num << 8);//
+        args->args[1] = (unsigned long)sockv4;
+        context->event_id = (event == _TCP_CONNECT) ? _TCP_CONNECT : _TCP_ACCEPT;
+        break;
 
+    case AF_INET6:
+        sockv6->sin6_family = conn->skc_family;
+        sockv6->sin6_port = (event == _TCP_CONNECT) ? conn->skc_dport : (conn->skc_num >> 8) | (conn->skc_num << 8);
+        bpf_probe_read(&sockv6->sin6_addr.in6_u.u6_addr16, sizeof(sockv6->sin6_addr.in6_u.u6_addr16), conn->skc_v6_daddr.in6_u.u6_addr16);
+        args->args[1] = (unsigned long)sockv6;
+        context->event_id = (event == _TCP_CONNECT) ? _TCP_CONNECT_v6 : _TCP_ACCEPT_v6;
+        break;
+
+    default:
+        return 1;
+    }
+
+    return 0;
+}
+
+
+SEC("kprobe/__x64_sys_tcp_connect")
+int kprobe__tcp_connect(struct pt_regs *ctx)
+{
+    bpf_printk("=====================Enter krpobe: %s=======================",__func__);
+    struct sock *sk = (struct sock *)PT_REGS_PARM1(ctx);
+    struct sock_common conn = READ_KERN(sk->__sk_common);
+    struct sockaddr_in sockv4;
+    struct sockaddr_in6 sockv6;
+
+    sys_context_t context = {};
+    struct event args = {};
+    u64 types = ARG_TYPE0(STR_T) | ARG_TYPE1(SOCKADDR_T);
+
+    init_context(&context);
+    context.argnum = get_arg_num(types);
+    bpf_printk(" tcp_connect argnum : %d\n",context.argnum);
+    context.retval = PT_REGS_RC(ctx);
+     bpf_printk(" tcp_connect retval : %d\n",context.retval);
+
+   // if (context.retval >= 0 && drop_syscall(_NETWORK_PROBE))
+   if (context.retval >= 0 )
+   {
+      return 0;
+   }
+
+    if (get_connection_info(&conn, &sockv4, &sockv6, &context, &args, _TCP_CONNECT) != 0)
+    {
+        return 0;
+    }
+
+    args.args[0] = (unsigned long)conn.skc_prot->name;
+    set_buffer_offset(DATA_BUF_TYPE, sizeof(sys_context_t));
+    bufs_t *bufs_p = get_buffer(DATA_BUF_TYPE);
+    if (bufs_p == NULL)
+        return 0;
+    save_context_to_buffer(bufs_p, (void *)&context);
+    save_args_to_buffer(types, &args);
+    events_perf_submit(ctx);
+
+    return 0;
+}
+
+SEC("kretprobe/__x64_sys_inet_csk_accept")
+int kretprobe__inet_csk_accept(struct pt_regs *ctx)
+{
+   // if (skip_syscall())
+     //   return 0;
+bpf_printk("=====================Enter krpobe: %s=======================",__func__);
+    struct sock *newsk = (struct sock *)PT_REGS_RC(ctx);
+    if (newsk == NULL)
+        return 0;
+
+    // Code from https://github.com/iovisor/bcc/blob/master/tools/tcpaccept.py with adaptations
+    u16 protocol = 1;
+    int gso_max_segs_offset = offsetof(struct sock, sk_gso_max_segs);
+    int sk_lingertime_offset = offsetof(struct sock, sk_lingertime);
+
+    if (sk_lingertime_offset - gso_max_segs_offset == 2)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 6, 0)
+        protocol = READ_KERN(newsk->sk_protocol);
+#else
+        protocol = newsk->sk_protocol;
+#endif
+    else if (sk_lingertime_offset - gso_max_segs_offset == 4)
+    // 4.10+ with little endian
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+        protocol = READ_KERN(*(u8 *)((u64)&newsk->sk_gso_max_segs - 3));
+    else
+        // pre-4.10 with little endian
+        protocol = READ_KERN(*(u8 *)((u64)&newsk->sk_wmem_queued - 3));
+#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+        // 4.10+ with big endian
+        protocol = READ_KERN(*(u8 *)((u64)&newsk->sk_gso_max_segs - 1));
+    else
+        // pre-4.10 with big endian
+        protocol = READ_KERN(*(u8 *)((u64)&newsk->sk_wmem_queued - 1));
+#else
+#error "Fix your compiler's __BYTE_ORDER__?!"
+#endif
+
+    if (protocol != IPPROTO_TCP)
+        return 0;
+
+    struct sock_common conn = READ_KERN(newsk->__sk_common);
+    struct sockaddr_in sockv4;
+    struct sockaddr_in6 sockv6;
+    sys_context_t context = {};
+    struct event args = {};
+    u64 types = ARG_TYPE0(STR_T) | ARG_TYPE1(SOCKADDR_T);
+    init_context(&context);
+    context.argnum = get_arg_num(types);
+    context.retval = PT_REGS_RC(ctx);
+
+    //if (context.retval >= 0 && drop_syscall(_NETWORK_PROBE))
+   // {
+     //   return 0;
+   // }
+
+    if (get_connection_info(&conn, &sockv4, &sockv6, &context, &args, _TCP_ACCEPT) != 0)
+    {
+        return 0;
+    }
+
+    args.args[0] = (unsigned long)conn.skc_prot->name;
+    set_buffer_offset(DATA_BUF_TYPE, sizeof(sys_context_t));
+    bufs_t *bufs_p = get_buffer(DATA_BUF_TYPE);
+    if (bufs_p == NULL)
+        return 0;
+
+    save_context_to_buffer(bufs_p, (void *)&context);
+    save_args_to_buffer(types, &args);
+    events_perf_submit(ctx);
+
+    return 0;
+}

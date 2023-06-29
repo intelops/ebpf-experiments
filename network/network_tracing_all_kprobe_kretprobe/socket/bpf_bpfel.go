@@ -56,16 +56,18 @@ type bpfSpecs struct {
 //
 // It can be passed ebpf.CollectionSpec.Assign.
 type bpfProgramSpecs struct {
-	X64SysAccept  *ebpf.ProgramSpec `ebpf:"__x64_sys_accept"`
-	X64SysBind    *ebpf.ProgramSpec `ebpf:"__x64_sys_bind"`
-	X64SysConnect *ebpf.ProgramSpec `ebpf:"__x64_sys_connect"`
-	X64SysListen  *ebpf.ProgramSpec `ebpf:"__x64_sys_listen"`
-	X64SysSocket  *ebpf.ProgramSpec `ebpf:"__x64_sys_socket"`
-	SysAccept     *ebpf.ProgramSpec `ebpf:"sys_accept"`
-	SysBind       *ebpf.ProgramSpec `ebpf:"sys_bind"`
-	SysConnect    *ebpf.ProgramSpec `ebpf:"sys_connect"`
-	SysListen     *ebpf.ProgramSpec `ebpf:"sys_listen"`
-	SysSocket     *ebpf.ProgramSpec `ebpf:"sys_socket"`
+	X64SysAccept           *ebpf.ProgramSpec `ebpf:"__x64_sys_accept"`
+	X64SysBind             *ebpf.ProgramSpec `ebpf:"__x64_sys_bind"`
+	X64SysConnect          *ebpf.ProgramSpec `ebpf:"__x64_sys_connect"`
+	X64SysListen           *ebpf.ProgramSpec `ebpf:"__x64_sys_listen"`
+	X64SysSocket           *ebpf.ProgramSpec `ebpf:"__x64_sys_socket"`
+	KprobeTcpConnect       *ebpf.ProgramSpec `ebpf:"kprobe__tcp_connect"`
+	KretprobeInetCskAccept *ebpf.ProgramSpec `ebpf:"kretprobe__inet_csk_accept"`
+	SysAccept              *ebpf.ProgramSpec `ebpf:"sys_accept"`
+	SysBind                *ebpf.ProgramSpec `ebpf:"sys_bind"`
+	SysConnect             *ebpf.ProgramSpec `ebpf:"sys_connect"`
+	SysListen              *ebpf.ProgramSpec `ebpf:"sys_listen"`
+	SysSocket              *ebpf.ProgramSpec `ebpf:"sys_socket"`
 }
 
 // bpfMapSpecs contains maps before they are loaded into the kernel.
@@ -116,16 +118,18 @@ func (m *bpfMaps) Close() error {
 //
 // It can be passed to loadBpfObjects or ebpf.CollectionSpec.LoadAndAssign.
 type bpfPrograms struct {
-	X64SysAccept  *ebpf.Program `ebpf:"__x64_sys_accept"`
-	X64SysBind    *ebpf.Program `ebpf:"__x64_sys_bind"`
-	X64SysConnect *ebpf.Program `ebpf:"__x64_sys_connect"`
-	X64SysListen  *ebpf.Program `ebpf:"__x64_sys_listen"`
-	X64SysSocket  *ebpf.Program `ebpf:"__x64_sys_socket"`
-	SysAccept     *ebpf.Program `ebpf:"sys_accept"`
-	SysBind       *ebpf.Program `ebpf:"sys_bind"`
-	SysConnect    *ebpf.Program `ebpf:"sys_connect"`
-	SysListen     *ebpf.Program `ebpf:"sys_listen"`
-	SysSocket     *ebpf.Program `ebpf:"sys_socket"`
+	X64SysAccept           *ebpf.Program `ebpf:"__x64_sys_accept"`
+	X64SysBind             *ebpf.Program `ebpf:"__x64_sys_bind"`
+	X64SysConnect          *ebpf.Program `ebpf:"__x64_sys_connect"`
+	X64SysListen           *ebpf.Program `ebpf:"__x64_sys_listen"`
+	X64SysSocket           *ebpf.Program `ebpf:"__x64_sys_socket"`
+	KprobeTcpConnect       *ebpf.Program `ebpf:"kprobe__tcp_connect"`
+	KretprobeInetCskAccept *ebpf.Program `ebpf:"kretprobe__inet_csk_accept"`
+	SysAccept              *ebpf.Program `ebpf:"sys_accept"`
+	SysBind                *ebpf.Program `ebpf:"sys_bind"`
+	SysConnect             *ebpf.Program `ebpf:"sys_connect"`
+	SysListen              *ebpf.Program `ebpf:"sys_listen"`
+	SysSocket              *ebpf.Program `ebpf:"sys_socket"`
 }
 
 func (p *bpfPrograms) Close() error {
@@ -135,6 +139,8 @@ func (p *bpfPrograms) Close() error {
 		p.X64SysConnect,
 		p.X64SysListen,
 		p.X64SysSocket,
+		p.KprobeTcpConnect,
+		p.KretprobeInetCskAccept,
 		p.SysAccept,
 		p.SysBind,
 		p.SysConnect,

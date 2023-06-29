@@ -7,11 +7,12 @@ import(
 	"encoding/binary"
 	"bytes"
 	"io"
+	
 
 	"strconv"
 	"strings"
 	"net"
-	//"github.com/cilium/ebpf"
+	"github.com/cilium/ebpf"
 	//fd "github.com/kubearmor/KubeArmor/KubeArmor/feeder"
 	"github.com/cilium/ebpf/link"
 	"github.com/cilium/ebpf/perf"
@@ -186,8 +187,63 @@ func main() {
 		}
 		GetArgs(dataBuff, ctx.Argnum)
     }
+
+
+}
+func formatmap(m *ebpf.Map) (error) {
+	var(
+		
+		key uint32
+		val []byte// can we read a buffer here 
+	)
+
+	iter := m.Iterate()
+	for iter.Next(&key,&val){
+		eventid := key
+		buffer := val
+
+		fmt.Println("-----------------------------------------")
+		Domain, err := getIntegerValue(buffer[:8])
+		if err != nil {
+			fmt.Println("Error:", err)
+		}
+		//getSocketDomain(Domain)
+		fmt.Printf("\t Thread Id %d => Socket domain: %s\n ",eventid,getSocketDomain(Domain))
+
+		socket_type, err := getIntegerValue(buffer[8:16])
+		if err != nil {
+			fmt.Println("Error:", err)
+		}
+		fmt.Printf("\t Thread Id %d => Socket type: %s\n",eventid,getSocketType(socket_type))
+
+		
+		//get protocol
+		protocol, err := getIntegerValue(buffer[16:24])
+		if err != nil {
+			fmt.Println("Error:", err)
+		}
+		protocolInt32 := int32(protocol)
+
+		fmt.Printf("\t Thread Id %d => Socket protocol: %s\n",eventid,getProtocol(protocolInt32))
+		fmt.Println("-----------------------------------------")
 	}
 	
+	return iter.Err()
+
+}
+func getIntegerValue(buff []byte) (uint32, error) {
+	var value uint32
+	if len(buff) != 8 {
+		return 0, fmt.Errorf("Input byte slice must have length 8")
+	}
+
+	err := binary.Read(bytes.NewBuffer(buff), binary.LittleEndian, &value)
+	if err != nil {
+		return 0, err
+	}
+
+	return value, nil
+}
 
 
 func GetArgs(dataBuff *bytes.Buffer, Argnum int32) ([]interface{}, error) {
@@ -200,9 +256,9 @@ func GetArgs(dataBuff *bytes.Buffer, Argnum int32) ([]interface{}, error) {
 		}
 		
 		args = append(args, arg)
-		fmt.Println("arguments are: \n",args)
+		
 	}
-
+	fmt.Println(args)
 	return args, nil
 }
 func readArgFromBuff(dataBuff io.Reader) (interface{}, error) {
@@ -213,7 +269,7 @@ func readArgFromBuff(dataBuff io.Reader) (interface{}, error) {
 	if err != nil {
 		return res, fmt.Errorf("error reading argument type: %v", err)
 	}
-	fmt.Println("arguments type is : \n",at)
+	//fmt.Println("arguments type is : \n",at)
 
 	switch at {
 	case intT:
@@ -534,6 +590,25 @@ var socketDomains = map[uint32]string{
 	44: "AF_XDP",
 }
 
+var protocols = map[int32]string{
+	1:  "ICMP",
+	6:  "TCP",
+	17: "UDP",
+	58: "ICMPv6",
+}
+
+// getProtocol Function
+func getProtocol(proto int32) string {
+	var res string
+
+	if protoName, ok := protocols[proto]; ok {
+		res = protoName
+	} else {
+		res = strconv.Itoa(int(proto))
+	}
+
+	return res
+}
 
 func Min(a, b int) int {
 	if a < b {
