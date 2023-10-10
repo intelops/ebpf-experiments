@@ -18,15 +18,6 @@ It  is an innovative eBPF profiling agent, designed to bring real-time, low-over
 - **Security Tracing**: Keep an eye on system calls and network activity to identify anomalous behavior.
 - **Compliance Auditing**: Ensure that your systems adhere to performance and security benchmarks.
 
-## 📚 Documentation
-
-Comprehensive documentation is available [here](https://yourdocumentationlink.com).
-
-- **Getting Started**: Introduction and initial setup of Tarian.
-- **User Guide**: Detailed usage and configuration instructions.
-- **API Documentation**: Interface and usage documentation for developers.
-- **FAQs**: Get answers to the most common questions.
-
 
 ## 📜 License
 
